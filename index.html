@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>e-aleuyun</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Zain:wght@200;300;400;700;800;900&display=swap');
+        * {
+            font-family: "Zain", sans-serif;
+        }
+        body {
+            background-color: #121212;
+            color: #f1f1f1;
+        }
+        .card {
+            margin: 15px;
+            background-color: #121212;
+            color: #f1f1f1;
+            border: 1px solid chartreuse;
+            text-align: center;
+        }
+        a {
+            color: chartreuse;
+        }
+        #map {
+            margin-top: 15px;
+            height: 200px;
+        }
+        .dark-mode {
+            background-color: #121212;
+            color: #f1f1f1;
+        }
+        .light-mode {
+            background-color: #f1f1f1;
+            color: #121212;
+        }
+    </style>
+</head>
+<body class="dark-mode">
+
+<div class="container-fluid p-3 text-center">
+    <h1 style="color: chartreuse; font-weight: bolder;">e-aleuyun | العيون الرقمية</h1>
+    <p>!اكتشف البيانات والمعلومات التي تجمعها المواقع والتطبيقات عنك</p>
+    <p>Made by <a href="https://x.com/1g_1c" target="_blank">@1G_1C</a>, version 0.1</p>
+    <hr style="color: chartreuse;">
+</div>
+
+<div class="container">
+    <div class="row">
+        <!-- IP Address Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">عنوان IP</h5>
+                    <p class="card-text" id="ip-address">تحميل...</p>
+                </div>
+            </div>
+        </div>
+        <!-- Device Type Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">نوع الجهاز</h5>
+                    <p class="card-text" id="device-type">تحميل...</p>
+                </div>
+            </div>
+        </div>
+        <!-- Browser Type Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">نوع المتصفح</h5>
+                    <p class="card-text" id="browser-type">تحميل...</p>
+                </div>
+            </div>
+        </div>
+        <!-- Time Spent Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">الوقت المنقضي على الموقع /التطبيق</h5>
+                    <p class="card-text" id="time-spent">تحميل...</p>
+                </div>
+            </div>
+        </div>
+        <!-- Location Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">إحداثيات الموقع الجغرافي</h5>
+                    <p class="card-text" id="approx-location">تحميل...</p>
+                    <div id="map"></div>
+                </div>
+            </div>
+        </div>
+        <!-- Date and Time Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">الوقت والتاريخ الفعلي</h5>
+                    <p class="card-text" id="current-date-time">تحميل...</p>
+                </div>
+            </div>
+        </div>
+        <!-- Screen Size Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">قياسات الشاشة</h5>
+                    <p class="card-text" id="screen-size">تحميل...</p>
+                </div>
+            </div>
+        </div>
+        <!-- Theme Mode Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">وضع العرض</h5>
+                    <p class="card-text" id="theme-mode">تحميل...</p>
+                </div>
+            </div>
+        </div>
+        <!-- Battery Status Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">نسبة البطارية</h5>
+                    <p class="card-text" id="battery-status">تحميل...</p>
+                </div>
+            </div>
+        </div>
+        <!-- Media Devices Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">أجهزة الوسائط</h5>
+                    <p class="card-text" id="media-devices">تحميل...</p>
+                </div>
+            </div>
+        </div>
+        <!-- Connection Info Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">نوع الاتصال وسرعة الإنترنت</h5>
+                    <p class="card-text" id="connection-info">تحميل...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Get IP Address using ipify API
+    fetch('https://api.ipify.org?format=json')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('ip-address').textContent = data.ip;
+
+            // Get detailed location based on IP using ipapi API
+            return fetch(`https://ipapi.co/${data.ip}/json/`);
+        })
+        .then(response => response.json())
+        .then(data => {
+            const city = data.city || 'غير متوفر';
+            const country = data.country_name || 'غير متوفر';
+            document.getElementById('approx-location').textContent = `${city}, ${country}`;
+
+            // Initialize Leaflet map with default location
+            const map = L.map('map').setView([0, 0], 13);
+
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Check if Geolocation is supported
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+
+                    // Update map with accurate location
+                    map.setView([latitude, longitude], 13);
+                    L.marker([latitude, longitude]).addTo(map)
+                        .bindPopup('موقعك الحالي')
+                        .openPopup();
+                    
+                    document.getElementById('approx-location').textContent = `إحداثيات: ${latitude}, ${longitude}`;
+                }, function(error) {
+                    console.error('Error getting location:', error);
+                    document.getElementById('approx-location').textContent = 'فشل في الحصول على الموقع';
+                });
+            } else {
+                document.getElementById('approx-location').textContent = 'تحديد الموقع غير مدعوم';
+            }
+        })
+        .catch(error => console.error('Error fetching IP or location data:', error));
+
+    // Detect operating system and device type
+    const platform = navigator.userAgentData ? navigator.userAgentData.platform : navigator.platform;
+    let osName = 'غير معروف';
+    if (/Windows/i.test(platform)) {
+        osName = 'ويندوز';
+    } else if (/Mac/i.test(platform)) {
+        osName = 'ماك';
+    } else if (/Linux/i.test(platform)) {
+        osName = 'لينكس';
+    } else if (/Android/i.test(platform)) {
+        osName = 'أندرويد';
+    } else if (/iPhone|iPad|iPod/i.test(platform)) {
+        osName = 'iOS';
+    }
+
+    // Detect browser type
+    const ua = navigator.userAgent;
+    let browserName = 'غير معروف';
+    if (/firefox|fxios/i.test(ua)) {
+        browserName = 'فايرفوكس';
+    } else if (/chrome|crios/i.test(ua)) {
+        browserName = 'جوجل كروم';
+    } else if (/safari/i.test(ua)) {
+        browserName = 'سفاري';
+    } else if (/opera|opr\//i.test(ua)) {
+        browserName = 'أوبرا';
+    } else if (/edge/i.test(ua)) {
+        browserName = 'مايكروسوفت إيدج';
+    }
+
+    document.getElementById('device-type').textContent = osName;
+    document.getElementById('browser-type').textContent = browserName;
+
+    // Time spent on page
+    let startTime = Date.now();
+    setInterval(() => {
+        let timeSpent = Math.floor((Date.now() - startTime) / 1000);
+        let minutes = Math.floor(timeSpent / 60);
+        let seconds = timeSpent % 60;
+        document.getElementById('time-spent').textContent = `${minutes} دقائق و ${seconds} ثواني`;
+    }, 1000);
+
+    // Display current date and time
+    function updateDateTime() {
+        const now = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+        const formattedDateTime = now.toLocaleDateString('ar-EG', options);
+        document.getElementById('current-date-time').textContent = formattedDateTime;
+    }
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+
+    // Display screen size
+    function updateScreenSize() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        document.getElementById('screen-size').textContent = `العرض: ${width}px، الارتفاع: ${height}px`;
+    }
+    updateScreenSize();
+    window.addEventListener('resize', updateScreenSize);
+
+    // Detect and display theme mode
+    function updateThemeMode() {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.add('dark-mode');
+            document.body.classList.remove('light-mode');
+            document.getElementById('theme-mode').textContent = 'ليلي';
+        } else {
+            document.body.classList.add('light-mode');
+            document.body.classList.remove('dark-mode');
+            document.getElementById('theme-mode').textContent = 'نهاري';
+        }
+    }
+    updateThemeMode();
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateThemeMode);
+
+    // Display battery status
+    function updateBatteryStatus(battery) {
+        const level = Math.round(battery.level * 100);
+        const charging = battery.charging ? 'نعم' : 'لا';
+        document.getElementById('battery-status').textContent = `نسبة البطارية: ${level}%، مشحونة: ${charging}`;
+    }
+
+    if ('getBattery' in navigator) {
+        navigator.getBattery().then(battery => {
+            updateBatteryStatus(battery);
+            battery.addEventListener('levelchange', () => updateBatteryStatus(battery));
+            battery.addEventListener('chargingchange', () => updateBatteryStatus(battery));
+        });
+    } else {
+        document.getElementById('battery-status').textContent = 'معلومات البطارية غير متوفرة';
+    }
+
+    // Display media devices
+    function getMediaDevices() {
+        navigator.mediaDevices.enumerateDevices()
+            .then(devices => {
+                const audioDevices = devices.filter(device => device.kind === 'audioinput');
+                const videoDevices = devices.filter(device => device.kind === 'videoinput');
+                const audioInfo = audioDevices.map(device => `ميكروفون: ${device.label || 'غير متوفر'}`).join('<br>');
+                const videoInfo = videoDevices.map(device => `كاميرا: ${device.label || 'غير متوفر'}`).join('<br>');
+                document.getElementById('media-devices').innerHTML = `${audioInfo}<br>${videoInfo}`;
+            })
+            .catch(error => {
+                document.getElementById('media-devices').textContent = 'فشل في الحصول على معلومات الأجهزة: ' + error.message;
+            });
+    }
+
+    getMediaDevices();
+
+    // Display connection info and speed
+    function updateConnectionInfo() {
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        if (connection) {
+            const type = connection.effectiveType || 'غير متوفر';
+            const typeText = {
+                'wifi': 'واي فاي',
+                'cellular': 'شبكة خلوية',
+                'ethernet': 'إيثرنت',
+                'bluetooth': 'بلوتوث',
+                'none': 'لا يوجد اتصال'
+            };
+
+            // Use a default message if the type is unknown
+            const connectionType = typeText[type] || 'غير معروف';
+
+            // Estimate connection speed
+            function estimateConnectionSpeed(callback) {
+                const imageUrl = "https://www.gstatic.com/webp/gallery/1.jpg"; // Small image URL for testing
+                const startTime = Date.now();
+                const image = new Image();
+                image.onload = () => {
+                    const endTime = Date.now();
+                    const duration = (endTime - startTime) / 1000; // Time in seconds
+                    const fileSize = 200 * 1024; // File size in bytes (200 KB)
+                    const speed = (fileSize / duration) / 1024; // Speed in KB/s
+                    callback(speed);
+                };
+                image.onerror = () => {
+                    callback("غير قادر على تقدير سرعة الإنترنت");
+                };
+                image.src = imageUrl + "?cachebust=" + startTime; // Append a cache-busting parameter to ensure the image is loaded fresh
+            }
+
+            estimateConnectionSpeed(speed => {
+                if (typeof speed === 'number') {
+                    document.getElementById('connection-info').innerHTML = `نوع الاتصال: ${connectionType}<br>تقدير سرعة الإنترنت: ${speed.toFixed(2)} KB/s`;
+                } else {
+                    document.getElementById('connection-info').textContent = speed;
+                }
+            });
+        } else {
+            document.getElementById('connection-info').textContent = 'معلومات الاتصال غير متوفرة';
+        }
+    }
+    updateConnectionInfo();
+});
+</script>
+
+</body>
+</html>
